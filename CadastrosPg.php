@@ -37,7 +37,7 @@
                 $stmt->bindValue(':id',$id);
 
                 if($stmt->execute())
-                    header('location: Cadastro.php');
+                    header('location: CadastrosPg.php');
                 else 
                     echo 'Erro ao excluir dados';
             }catch(PDOException $e){
@@ -89,7 +89,7 @@
     <script>
         function excluir(url){
             if(confirm("Confirma a exclusão?"))
-                header(url);
+                window.location.href = url;
         }
     </script>
     
@@ -124,32 +124,25 @@
                                     <h8 class="text-danger" id="senhainvalida"></h8>
                                 </div>
                             </div>
-                        
-                        
+
+
                             <div class="inputbox">
                                 <div class="">
-                                    <label for="datanasc" id="datanasc" name="datanasc">Informe sua data de nascimento</label><br>
-                                    <input type="date" id="in_datanasc" name="datanasc" class="datanasc" ><br>
+                                    <input type="submit" id="enviar" name="acao" value="salvar" >
                                 </div>
                             </div>
 
-                        <div class="inputbox">
-                            <div class="">
-                                <input type="submit" id="enviar" name="acao" value="salvar" >
+                            <div>
+                                <div class="inputbox">
+                                    <h4>Resultado do cadastro (via JSON):</h4>
+                                    <h7><b id="area"> </b></h7>
+                                </div>
                             </div>
-                        </div>
-
-                        <div>
-                            <div class="inputbox">
-                                <h4>Resultado do cadastro (via JSON):</h4>
-                                <h7><b id="area"> </b></h7>
-                            </div>
-                        </div>
                         
                     </table>
                     
             </form>
-            <form method="">
+            <form method="post">
                 <div>
                     <div>
                         <label for="busca" id="busca">
@@ -163,13 +156,13 @@
 
             try{
                 $conexao = new PDO(MYSQL_DSN,DB_USER,DB_PASSWORD);//cria conexão com banco de dados
-                $busca = isset($_GET['search'])?$_GET['busca']:"";
+                $busca = isset($_GET['busca'])?$_GET['busca']:"";
 
                 // Mostrar consulta; 
-                $consulta = 'SELECT * FROM agenda';
-                if ($busca != ""){
-                    $busca = '%'.$busca.'%';
-                    $consulta .= ' where nome like :busca';
+                $consulta = "SELECT * FROM agenda";
+                if(isset($_POST['busca'])){
+                    $busca = $_POST['busca'];
+                    $consulta = "SELECT * FROM agenda WHERE nome LIKE '%$busca%'";
                 }
                 // Preparar consulta
                 $stmt = $conexao->prepare($consulta);
@@ -182,13 +175,13 @@
    
                 echo "<table>";
                 echo'   <tr>
-                            <th></th><th>Id</th><th>nome</th><th>sobrenome</th><th>Email</th><th>senha</th><th>dataNascimento</th><th>Del</th>
+                            <th></th><th>Id</th><th>nome</th><th>sobrenome</th><th>Email</th><th>senha</th><th>Edit</th><th>Del</th>
                         </tr>';
                 foreach($listacontatos as $contato){
                     $editar = '<a href=CadastrosPg.php?acao=editar&id='.$contato['id'].'>Alt</a>';
                     $excluir = "<a href='#' onclick=excluir('acao.php?acao=excluir&id={$contato['id']}')>Excluir</a>";
                     echo "<tr>";
-                    echo "<td>".$contato['id']."</td><td>".$contato['nome']."</td><td>".$contato['sobrenome']."</td><td>".$contato['email']."</td><td>".$contato['senha']."</td><td>".$contato['datanasc']."</td><td>".$editar."</td><td>".$excluir."</td>";
+                    echo "<td>".$contato['id']."</td><td>".$contato['nome']."</td><td>".$contato['sobrenome']."</td><td>".$contato['email']."</td><td>".$contato['senha']."</td><td>".$editar."</td><td>".$excluir."</td>";
                     echo "</tr>";
                 }
                 echo "</table>";
