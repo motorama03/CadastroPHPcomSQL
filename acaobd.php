@@ -15,7 +15,7 @@
             $stmt->bindValue(':id',$id);
             // executar a consulta
             if ($stmt->execute())
-                header('location: cadUsuario.php');
+                header('location: CadastrosPg.php');
             else
                 echo 'Erro ao excluir dados';
         }catch(PDOException $e){ // se ocorrer algum erro na execuçao da conexão com o banco executará o bloco abaixo

@@ -68,13 +68,16 @@
     </Style>
 
     <script>
-        
+        function excluir(url){
+            if (confirm("Deseja Excluir?"))
+                window.location.href = url;
+        }
     </script>
     
 </head>
 <body class="body">
 
-    <script src="js.js"></script>
+    <!--<script src="js.js"></script> -->
 
             <form action="acaobd.php" method="post" > <!--/* onsubmit= (aspas duplas) validafuncao() */ onsubmit="validafuncao()-->
                     <table>
@@ -146,7 +149,7 @@
                 $busca = isset($_POST['busca'])?$_POST['busca']:"";
                 $query = 'SELECT * FROM agenda';
                 if ($busca != ""){ 
-                    $busca = '%'.$busca.'%'; 
+                    $busca = $busca.'%'; 
                     $query .= ' WHERE nome like :busca' ; 
                 }
                 $stmt = $conexao->prepare($query);
@@ -162,7 +165,7 @@
                         </tr>';
                 foreach($listacontatos as $contato){
                     $editar = '<a href=CadastrosPg.php?acao=editar&id='.$contato['id'].'>Alt</a>';
-                    $excluir = "<a href='#' onclick=excluir('acao.php?acao=excluir&id={$contato['id']}')>Excluir</a>";
+                    $excluir = "<a href='#' onclick=excluir('acaobd.php?acao=excluir&id={$contato['id']}')>Excluir</a>";
                     echo "<tr>";
                     echo "<td>".$contato['id']."</td><td>".$contato['nome']."</td><td>".$contato['sobrenome']."</td><td>".$contato['email']."</td><td>".$contato['senha']."</td><td>".$contato['cidade']."</td><td>".$contato['pastempo']."</td><td>".$editar."</td><td>".$excluir."</td>";
                     echo "</tr>";
