@@ -26,30 +26,11 @@
         die();
     }
 }
-    else{
-        if ($acao == 'excluir'){
-            try{
-
-                $conexao = new PDO(MYSQL_DSN,DB_USER,DB_PASSWORD);
-                $query = 'DELETE FROM agenda WHERE id = :id';
-
-                $stmt = $conexao->prepare($query);
-                $stmt->bindValue(':id',$id);
-
-                if($stmt->execute())
-                    header('location: CadastrosPg.php');
-                else 
-                    echo 'Erro ao excluir dados';
-            }catch(PDOException $e){
-                print("Erro ao conectar com o banco de dados...<br>".$e->getMessage());
-                die();
-            }
-        }
-    }
 ?>
 
 <!DOCTYPE html>
 <head class="tudo">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <meta charset="utf-8">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -87,10 +68,7 @@
     </Style>
 
     <script>
-        function excluir(url){
-            if(confirm("Confirma a exclusão?"))
-                window.location.href = url;
-        }
+        
     </script>
     
 </head>
@@ -125,6 +103,16 @@
                                 </div>
                             </div>
 
+                            <div class="inputbox">
+                                <div class="">
+                                    <label for="cidade" id="cidade" name="cidade" ></label>Em que cidade você mora?<br>
+                                    <input type="cidade" id="in_cidade" name="cidade" value=<?php if(isset($usuario))echo $usuario['cidade'] ?>><br>
+                                    <h8 class="text-danger" id="emailinvalido"></h8>
+                                    <label for="pastempo" id="pastempo" name="pastempo"></label>Qual é seu passa tempo?<br>
+                                    <input type="text" id="in_pastempo" name="pastempo" value=<?php if(isset($usuario))echo $usuario['pastempo'] ?>><br><br>
+                                </div>
+                            </div>
+
 
                             <div class="inputbox">
                                 <div class="">
@@ -145,43 +133,38 @@
             <form method="post">
                 <div>
                     <div>
-                        <label for="busca" id="busca">
-                        <input type="text" name="busca" id="busca" value="">
-                        <input type="submit">
+                    <div class='col'><input class='form-control' type="search" name='busca' id='busca'></div>
+                    <div class='col'><button type="submit" class='btn btn-success' name='pesquisa'>Buscar</button></div>
                     </div>
                 </div>
 
             </form>
             <?php
 
-            try{
-                $conexao = new PDO(MYSQL_DSN,DB_USER,DB_PASSWORD);//cria conexão com banco de dados
-                $busca = isset($_GET['busca'])?$_GET['busca']:"";
-
-                // Mostrar consulta; 
-                $consulta = "SELECT * FROM agenda";
-                if(isset($_POST['busca'])){
-                    $busca = $_POST['busca'];
-                    $consulta = "SELECT * FROM agenda WHERE nome LIKE '%$busca%'";
+                try{
+                $conexao = new PDO(MYSQL_DSN,DB_USER,DB_PASSWORD);
+                $busca = isset($_POST['busca'])?$_POST['busca']:"";
+                $query = 'SELECT * FROM agenda';
+                if ($busca != ""){ 
+                    $busca = '%'.$busca.'%'; 
+                    $query .= ' WHERE nome like :busca' ; 
                 }
-                // Preparar consulta
-                $stmt = $conexao->prepare($consulta);
-
-                //Vincula váriaveis com a consulta
-                if($busca != "")
+                $stmt = $conexao->prepare($query);
+                if ($busca != "") 
                     $stmt->bindValue(':busca',$busca);
+                
                 $stmt->execute();
                 $listacontatos = $stmt->fetchAll();
    
-                echo "<table>";
+                echo '<table class="table">';
                 echo'   <tr>
-                            <th></th><th>Id</th><th>nome</th><th>sobrenome</th><th>Email</th><th>senha</th><th>Edit</th><th>Del</th>
+                            <th>ID</th><th>nome</th><th>sobrenome</th><th>Email</th><th>senha</th><th>cidade</th><th>PassaTempo</th><th>Edit</th><th>Del</th>
                         </tr>';
                 foreach($listacontatos as $contato){
                     $editar = '<a href=CadastrosPg.php?acao=editar&id='.$contato['id'].'>Alt</a>';
                     $excluir = "<a href='#' onclick=excluir('acao.php?acao=excluir&id={$contato['id']}')>Excluir</a>";
                     echo "<tr>";
-                    echo "<td>".$contato['id']."</td><td>".$contato['nome']."</td><td>".$contato['sobrenome']."</td><td>".$contato['email']."</td><td>".$contato['senha']."</td><td>".$editar."</td><td>".$excluir."</td>";
+                    echo "<td>".$contato['id']."</td><td>".$contato['nome']."</td><td>".$contato['sobrenome']."</td><td>".$contato['email']."</td><td>".$contato['senha']."</td><td>".$contato['cidade']."</td><td>".$contato['pastempo']."</td><td>".$editar."</td><td>".$excluir."</td>";
                     echo "</tr>";
                 }
                 echo "</table>";
